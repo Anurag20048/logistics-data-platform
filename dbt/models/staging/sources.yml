@@ -1,0 +1,6 @@
+version: 2
+sources:
+  - name: raw
+    schema: public
+    tables:
+      - name: logistics_events

@@ -1,0 +1,12 @@
+name: logistics_platform
+version: "1.0"
+config-version: 2
+profile: logistics_platform
+model-paths: ["models"]
+test-paths: ["tests"]
+models:
+  logistics_platform:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: customer_logistics_360
+    description: Customer-level logistics KPIs and delivery performance.
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+
+  - name: shipment_performance
+    description: Shipment-level operational performance metrics.
+    columns:
+      - name: shipment_id
+        tests:
+          - not_null
+          - unique

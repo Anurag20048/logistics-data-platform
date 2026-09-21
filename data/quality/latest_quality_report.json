@@ -1,0 +1,18 @@
+{
+  "generated_at_utc": "2026-09-21T09:49:05.830730+00:00",
+  "quality_status": "PASS",
+  "checks": {
+    "customers": 1000,
+    "events": 50000,
+    "duplicate_customer_ids": 0,
+    "duplicate_event_ids": 0,
+    "null_event_ids": 0,
+    "null_customer_ids": 0,
+    "orphan_customer_ids": 0,
+    "invalid_timestamps": 0,
+    "negative_delay": 0,
+    "distance_out_of_range": 0,
+    "delay_out_of_range": 0,
+    "passed": true
+  }
+}

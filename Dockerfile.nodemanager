@@ -1,0 +1,66 @@
+FROM apache/hadoop:3.4.2
+
+USER root
+
+# 1) CentOS 7 base repos -> vault (mirrorlist OFF)
+RUN set -eux; \
+    sed -i \
+      -e 's|^mirrorlist=|#mirrorlist=|g' \
+      -e 's|^#baseurl=http://mirror.centos.org/centos/\$releasever|baseurl=http://vault.centos.org/7.9.2009|g' \
+      /etc/yum.repos.d/CentOS-Base.repo; \
+    yum -y clean all && rm -rf /var/cache/yum
+
+# 2) Install SCL release files and REPLACE SCLo repos with fixed vault URLs (NO mirrorlist)
+RUN set -eux; \
+    yum -y install centos-release-scl; \
+    rm -f /etc/yum.repos.d/CentOS-SCLo-*.repo; \
+    printf '%s\n' \
+      '[centos-sclo-rh]' \
+      'name=CentOS-7 - SCLo rh' \
+      'baseurl=http://vault.centos.org/7.9.2009/sclo/x86_64/rh/' \
+      'enabled=1' \
+      'gpgcheck=0' \
+      > /etc/yum.repos.d/CentOS-SCLo-rh.repo; \
+    printf '%s\n' \
+      '[centos-sclo-sclo]' \
+      'name=CentOS-7 - SCLo sclo' \
+      'baseurl=http://vault.centos.org/7.9.2009/sclo/x86_64/sclo/' \
+      'enabled=1' \
+      'gpgcheck=0' \
+      > /etc/yum.repos.d/CentOS-SCLo-sclo.repo; \
+    yum -y clean all && rm -rf /var/cache/yum
+
+# 3) Install Python 3.8 from SCL
+# IMPORTANT: DO NOT change /usr/bin/python (yum needs python2)
+RUN set -eux; \
+    yum -y install rh-python38 rh-python38-python-pip; \
+    yum -y clean all && rm -rf /var/cache/yum; \
+    ln -sf /opt/rh/rh-python38/root/usr/bin/python3 /usr/local/bin/python3.8; \
+    ln -sf /usr/local/bin/python3.8 /usr/local/bin/python3
+
+# 4) Tell Spark executors which python to use
+ENV PYSPARK_PYTHON=/usr/local/bin/python3
+ENV PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3
+
+# 5) Install Spark (needed on NodeManager for YARN containers classpath)
+# Fixes: "Could not find or load main class org.apache.spark.deploy.yarn.ExecutorLauncher"
+ARG SPARK_VERSION=3.5.8
+ARG SPARK_HADOOP_PROFILE=hadoop3
+ARG SPARK_TGZ=spark-${SPARK_VERSION}-bin-${SPARK_HADOOP_PROFILE}.tgz
+ARG SPARK_URL=https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_TGZ}
+
+RUN set -eux; \
+    yum -y install curl tar gzip; \
+    yum -y clean all && rm -rf /var/cache/yum; \
+    mkdir -p /opt; \
+    curl -fL "${SPARK_URL}" -o "/tmp/${SPARK_TGZ}"; \
+    tar -xzf "/tmp/${SPARK_TGZ}" -C /opt; \
+    ln -s "/opt/spark-${SPARK_VERSION}-bin-${SPARK_HADOOP_PROFILE}" /opt/spark; \
+    rm -f "/tmp/${SPARK_TGZ}"; \
+    chown -R hadoop:hadoop "/opt/spark-${SPARK_VERSION}-bin-${SPARK_HADOOP_PROFILE}" /opt/spark
+
+ENV SPARK_HOME=/opt/spark
+ENV PATH=$SPARK_HOME/bin:$PATH
+
+
+USER hadoop

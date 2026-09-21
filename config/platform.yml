@@ -1,0 +1,20 @@
+project: logistics_data_platform
+environment: local
+data:
+  customers: 1000
+  events: 50000
+  start_date: "2026-01-01"
+quality:
+  max_delay_minutes: 180
+  max_distance_km: 2500
+streaming:
+  topic: logistics-events
+  watermark: 10 minutes
+  window: 5 minutes
+lakehouse:
+  bucket: logistics
+  bronze_prefix: bronze/logistics_events
+  silver_prefix: silver/logistics_events
+  gold_prefix: gold/customer_logistics_360
+warehouse:
+  schema: warehouse
