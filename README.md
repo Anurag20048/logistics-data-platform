@@ -1,9 +1,6 @@
 # Logistics Data Platform v2
 
-An interview-ready **end-to-end Data Engineering platform** for logistics analytics.
-
-### Core themes
-**Real-time Streaming + Lakehouse + Data Quality + Orchestration + Analytics**
+An end-to-end **Data Engineering platform** for logistics analytics, built around real-time streaming, lakehouse-style storage, data quality, orchestration, and analytical marts.
 
 ## Architecture
 
@@ -27,21 +24,35 @@ Airflow -> Quality Gate -> Gold Build -> Warehouse Load -> dbt Tests
 - **Infrastructure:** Docker Compose
 - **Analytics:** Customer Logistics 360 + Shipment Performance
 
-## Advanced Engineering Features
+## Engineering Features
 
-- Kafka producer with `acks=all`, retries, compression and shipment-keyed events.
+- Kafka producer configured with `acks=all`, retries, compression, and shipment-keyed events.
 - Spark event-time processing with a 10-minute watermark.
 - Event-level deduplication using `event_id`.
 - Partitioned curated storage by ingestion date.
-- Batch and streaming paths.
-- Automated schema, null, duplicate, referential-integrity and business-range checks.
-- Quality report written to `data/quality/latest_quality_report.json`.
+- Batch and streaming processing paths.
+- Automated schema, null, duplicate, referential-integrity, and business-range checks.
 - Customer-level and shipment-level analytical marts.
-- Airflow retries and dependency-aware pipeline.
-- dbt model tests for uniqueness and not-null constraints.
+- Airflow retries and dependency-aware pipeline execution.
+- dbt tests for uniqueness and not-null constraints.
 - Reproducible synthetic dataset generation.
 
-## Local validation
+## Validation
+
+The project was validated locally before publication:
+
+- Python syntax compilation: **PASS**
+- YAML parsing: **PASS**
+- Synthetic data generation: **PASS**
+- Data-quality gate: **PASS**
+- Gold transformations: **PASS**
+- Pytest: **4/4 PASS**
+- Generated test dataset: **1,000 customers and 50,000 logistics events**
+- Docker runtime: not executed in the validation environment because Docker CLI was unavailable.
+
+Generated raw datasets are intentionally excluded from the repository; use the data-generation script to recreate them locally.
+
+## Run Locally
 
 ```bash
 python -m pip install -r requirements.txt
@@ -52,7 +63,7 @@ python -m src.transform.build_gold
 pytest -q
 ```
 
-## Streaming producer
+## Streaming Producer
 
 ```bash
 python streaming/kafka_producer.py
@@ -72,6 +83,6 @@ EVENT_COUNT=100
 docker compose -f docker-compose.modern.yml up -d
 ```
 
-Services include PostgreSQL, Kafka, MinIO and Airflow.
+The modern Compose stack includes PostgreSQL, Kafka, MinIO, and Airflow.
 
-See `docs/architecture_v2.md` and `docs/interview_story.md` for the system design and interview explanation.
+See `docs/architecture_v2.md`, `docs/interview_story.md`, and `docs/runbook.md` for architecture, interview preparation, and operational guidance.
